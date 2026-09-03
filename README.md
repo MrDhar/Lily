@@ -73,5 +73,5 @@ Personal / educational project. No license file included — treat as all-rights
 ---
 
 <div align="center">
-<sub>Branding: <b>Project Lily</b> 🌸 — a small pixel-art pink lily throughout the app icon and header.</sub>
+<sub>Branding: <b>Project Lily</b> 🌸 — .</sub>
 </div>

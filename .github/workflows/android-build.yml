@@ -17,7 +17,9 @@ jobs:
 
       - name: Unzip project
         run: |
-          unzip -o Project-Lily-Android-v8.zip -d extracted
+          zipfile=$(ls *.zip | head -n1)
+          echo "Unzipping $zipfile"
+          unzip -o "$zipfile" -d extracted
           ls -la extracted
 
       - name: Set up JDK 17

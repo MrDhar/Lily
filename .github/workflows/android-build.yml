@@ -15,25 +15,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Unzip project
+        run: |
+          unzip -o Project-Lily-Android-v8.zip -d extracted
+          ls -la extracted
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      # This repo has no committed Gradle wrapper, so Gradle is provisioned
-      # directly by this action (pinned to a version compatible with AGP 8.7.x).
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
           gradle-version: '8.10.2'
+          build-root-directory: extracted
 
       - name: Build debug APK
+        working-directory: extracted
         run: gradle assembleDebug --stacktrace
 
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: project-lily-debug-apk
-          path: app/build/outputs/apk/debug/*.apk
+          path: extracted/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error

@@ -7,74 +7,70 @@ on:
     branches: ["main"]
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Find and extract Project Lily
         shell: bash
         run: |
-          set -e
+          set -euo pipefail
 
-          zipfile=$(find . -maxdepth 1 -type f -name "*.zip" | head -n1)
+          if find . -maxdepth 1 -type f -name 'settings.gradle*' | grep -q .; then
+            echo "Project is already extracted."
+            echo "PROJECT_DIR=." >> "$GITHUB_ENV"
+            exit 0
+          fi
+
+          zipfile="$(find . -maxdepth 1 -type f -name 'Project-Lily-Android-*.zip' | sort -V | tail -n1)"
+          if [ -z "$zipfile" ]; then
+            zipfile="$(find . -maxdepth 1 -type f -name '*.zip' | sort -V | tail -n1)"
+          fi
 
           if [ -z "$zipfile" ]; then
-            echo "❌ No ZIP project found"
+            echo "No Project Lily ZIP found."
             exit 1
           fi
 
-          echo "Using: $zipfile"
-
+          echo "Using $zipfile"
           rm -rf extracted
           mkdir extracted
-
           unzip -q -o "$zipfile" -d extracted
 
-          echo "Extracted files:"
-          find extracted -maxdepth 3 -type f | sort | head -200
-
-      - name: Locate Android project
-        shell: bash
-        run: |
-          set -e
-
-          PROJECT_DIR=$(find extracted -type f -name "settings.gradle*" -print -quit | xargs -r dirname)
-
-          if [ -z "$PROJECT_DIR" ]; then
-            PROJECT_DIR=$(find extracted -type f -name "build.gradle*" -path "*/app/*" -print -quit | xargs -r dirname | xargs -r dirname)
-          fi
-
-          if [ -z "$PROJECT_DIR" ]; then
-            echo "❌ Could not locate Android project"
+          project_dir="$(find extracted -type f -name 'settings.gradle*' -print -quit | xargs -r dirname)"
+          if [ -z "$project_dir" ]; then
+            echo "Could not locate settings.gradle(.kts)."
             exit 1
           fi
 
-          echo "Android project found at: $PROJECT_DIR"
-          echo "PROJECT_DIR=$PROJECT_DIR" >> "$GITHUB_ENV"
+          echo "PROJECT_DIR=$project_dir" >> "$GITHUB_ENV"
+          echo "Project: $project_dir"
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: '17'
+          cache: gradle
 
       - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
         with:
-          gradle-version: "8.10.2"
-          build-root-directory: ${{ env.PROJECT_DIR }}
+          gradle-version: '8.10.2'
 
       - name: Build debug APK
         working-directory: ${{ env.PROJECT_DIR }}
-        run: |
-          gradle assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace --no-daemon
 
       - name: Upload debug APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: project-lily-debug-apk
           path: ${{ env.PROJECT_DIR }}/app/build/outputs/apk/debug/*.apk

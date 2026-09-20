@@ -1,0 +1,107 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:background="#070809"
+    android:padding="8dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Desktop-style macOS window chrome. The three Lily dots retain their pink identity. -->
+    <LinearLayout
+        android:id="@+id/windowChrome"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="@drawable/window_chrome"
+        android:paddingLeft="12dp"
+        android:paddingRight="12dp"
+        android:layout_width="match_parent"
+        android:layout_height="46dp" android:clipChildren="false" android:clipToPadding="false">
+        <View android:id="@+id/windowDot1" android:background="@drawable/window_dot_1" android:layout_marginStart="2dp" android:layout_width="14dp" android:layout_height="14dp" android:layout_marginRight="7dp" android:clickable="true" android:focusable="true" android:contentDescription="Toggle database sidebar"/>
+        <View android:id="@+id/windowDot2" android:background="@drawable/window_dot_2" android:layout_width="14dp" android:layout_height="14dp" android:layout_marginRight="7dp" android:clickable="true" android:focusable="true" android:contentDescription="Save query"/>
+        <View android:id="@+id/windowDot3" android:background="@drawable/window_dot_3" android:layout_width="14dp" android:layout_height="14dp" android:layout_marginRight="14dp" android:clickable="true" android:focusable="true" android:contentDescription="Open command palette"/>
+        <LinearLayout android:id="@+id/editorBrand" android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="4dp" android:paddingRight="10dp" android:layout_width="0dp" android:layout_weight="1" android:layout_height="40dp" android:contentDescription="Toggle database sidebar">
+            <ImageView android:src="@drawable/pixel_lily" android:contentDescription="Project Lily" android:layout_width="20dp" android:layout_height="20dp" android:layout_marginRight="8dp"/>
+            <LinearLayout android:orientation="vertical" android:layout_width="wrap_content" android:layout_height="wrap_content">
+                <TextView android:text="Project Lily  ·  SQL Editor" android:textColor="#E8E9EB" android:fontFamily="sans-serif-medium" android:textSize="13sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:text="Local SQLite workspace" android:textColor="#777A80" android:textSize="9sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+        </LinearLayout>
+        <TextView android:text="SQLite  ·  Offline" android:textColor="#777A80" android:textSize="9sp" android:gravity="center_vertical" android:layout_width="wrap_content" android:layout_height="match_parent" android:paddingRight="10dp"/>
+        <Button android:id="@+id/importButton" style="@style/FlatButton" android:text="Import" android:layout_width="wrap_content" android:layout_height="32dp"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:background="@drawable/window_content"
+        android:clipToOutline="true"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <LinearLayout android:id="@+id/sidebarPanel" android:orientation="vertical" android:background="#101113" android:layout_width="248dp" android:layout_height="match_parent">
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="14dp" android:paddingRight="12dp" android:layout_width="match_parent" android:layout_height="40dp">
+                <TextView android:text="DATABASES" android:textColor="#8A8D93" android:fontFamily="sans-serif-medium" android:textSize="9sp" android:letterSpacing="0.15" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                <TextView android:text="LOCAL" android:textColor="#5F6268" android:textSize="8sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <View android:background="#292B2F" android:layout_width="match_parent" android:layout_height="1dp"/>
+            <ScrollView android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:fillViewport="true"><LinearLayout android:id="@+id/schemaPanel" android:orientation="vertical" android:paddingLeft="6dp" android:paddingRight="6dp" android:paddingBottom="12dp" android:layout_width="match_parent" android:layout_height="wrap_content"/></ScrollView>
+        </LinearLayout>
+
+        <View android:id="@+id/sidebarDivider" android:layout_width="1dp" android:layout_height="match_parent" android:background="#292B2F"/>
+
+        <LinearLayout android:orientation="vertical" android:layout_width="0dp" android:layout_weight="1" android:layout_height="match_parent" android:paddingLeft="8dp" android:paddingRight="8dp">
+            <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="6dp" android:paddingRight="4dp" android:paddingTop="7dp" android:paddingBottom="3dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                <TextView android:id="@+id/workspaceLabel" android:text="QUERY EDITOR" android:textColor="#777A80" android:fontFamily="sans-serif-medium" android:textSize="9sp" android:letterSpacing="0.13" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/workspaceHint" android:text="" android:visibility="gone" android:textColor="#5F6268" android:textSize="9sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <HorizontalScrollView android:id="@+id/scriptTabScroll" android:background="#0D0E10" android:scrollbars="none" android:layout_width="match_parent" android:layout_height="30dp"><LinearLayout android:id="@+id/scriptTabStrip" android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="5dp" android:paddingRight="5dp" android:layout_width="wrap_content" android:layout_height="match_parent"/></HorizontalScrollView>
+            <LinearLayout android:id="@+id/editorSurface" android:orientation="vertical" android:background="@drawable/dashboard_surface" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1.05">
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="10dp" android:paddingRight="10dp" android:paddingTop="5dp" android:paddingBottom="4dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:text="SQL" android:textColor="#85888E" android:fontFamily="sans-serif-medium" android:textSize="9sp" android:letterSpacing="0.12" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/currentStatementIndicator" android:text="" android:visibility="gone" android:layout_width="0dp" android:layout_height="0dp"/>
+                    <Button android:id="@+id/formatButton" style="@style/FlatButton" android:text="Format" android:layout_width="wrap_content" android:layout_height="31dp" android:layout_marginEnd="4dp"/>
+                    <ImageButton android:id="@+id/clearButton" android:background="@drawable/button_flat" android:src="@drawable/ic_clear_editor" android:contentDescription="Clear editor" android:padding="7dp" android:layout_width="32dp" android:layout_height="31dp" android:layout_marginEnd="4dp"/>
+                <ImageButton android:id="@+id/runButton" android:background="@drawable/button_run" android:src="@drawable/ic_run_lightning" android:contentDescription="Run all or selection" android:padding="7dp" android:layout_width="32dp" android:layout_height="31dp" android:layout_marginEnd="3dp"/>
+                <ImageButton android:id="@+id/runCurrentButton" android:background="@drawable/button_run_current" android:src="@drawable/ic_run_current" android:contentDescription="Run current SQL statement" android:padding="7dp" android:layout_width="32dp" android:layout_height="31dp"/>
+                </LinearLayout>
+                <FrameLayout android:id="@+id/editorFrame" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+
+                    <com.maalik.projectlily.LineNumberGutterView android:id="@+id/editorGutter" android:layout_width="52dp" android:layout_height="match_parent" android:clickable="false" android:focusable="false" android:importantForAccessibility="no" android:background="@android:color/transparent"/>
+
+
+
+                    <com.maalik.projectlily.LineNumberEditText android:id="@+id/editor" android:gravity="top|start" android:inputType="textMultiLine" android:fontFamily="monospace" android:textColor="#E5E6E8" android:textColorHint="#5B5E64" android:background="@null" android:paddingLeft="52dp" android:paddingRight="12dp" android:paddingTop="2dp" android:paddingBottom="12dp" android:scrollbars="vertical" android:maxLines="2147483647" android:singleLine="false" android:textSize="13sp" android:layout_width="match_parent" android:layout_height="match_parent"/>
+
+                    <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:layout_gravity="bottom|end" android:layout_width="wrap_content" android:layout_height="20dp" android:layout_marginEnd="6dp" android:layout_marginBottom="5dp" android:clipChildren="false">
+                        <TextView android:id="@+id/editorZoomMinus" android:text="−" android:textColor="#AEB1B7" android:textSize="12sp" android:gravity="center" android:background="@drawable/button_flat" android:clickable="true" android:focusable="true" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="Zoom editor out"/>
+                        <TextView android:id="@+id/editorZoomPlus" android:text="+" android:textColor="#AEB1B7" android:textSize="12sp" android:gravity="center" android:background="@drawable/button_flat" android:clickable="true" android:focusable="true" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginStart="2dp" android:contentDescription="Zoom editor in"/>
+                    </LinearLayout>
+
+                </FrameLayout>
+            </LinearLayout>
+            <View android:id="@+id/resizeHandle" android:background="@drawable/resize_handle" android:layout_width="match_parent" android:layout_height="14dp" android:layout_marginTop="1dp" android:layout_marginBottom="1dp" android:clickable="true" android:focusable="true" android:contentDescription="Drag to resize editor and results"/>
+            <LinearLayout android:id="@+id/resultArea" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+                <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="4dp" android:paddingRight="4dp" android:paddingTop="4dp" android:paddingBottom="3dp" android:layout_width="match_parent" android:layout_height="wrap_content">
+                    <TextView android:id="@+id/status" android:text="Ready" android:textColor="#9AA09A" android:textSize="10sp" android:paddingLeft="6dp" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                </LinearLayout>
+                <HorizontalScrollView android:id="@+id/tabScroll" android:background="#0D0E10" android:scrollbars="none" android:layout_width="match_parent" android:layout_height="31dp"><LinearLayout android:id="@+id/tabStrip" android:orientation="horizontal" android:paddingLeft="6dp" android:paddingRight="6dp" android:paddingTop="2dp" android:paddingBottom="2dp" android:layout_width="wrap_content" android:layout_height="wrap_content"/></HorizontalScrollView>
+                <FrameLayout android:id="@+id/resultViewport" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1" android:clipChildren="false">
+                    <FrameLayout android:id="@+id/resultContainer" android:background="#0C0D0F" android:layout_width="match_parent" android:layout_height="match_parent" android:clipChildren="false"/>
+                    <LinearLayout android:id="@+id/resultZoomControls" android:orientation="horizontal" android:gravity="center_vertical" android:layout_gravity="bottom|end" android:layout_width="wrap_content" android:layout_height="20dp" android:layout_marginEnd="6dp" android:layout_marginBottom="5dp" android:clipChildren="false" android:elevation="3dp">
+                        <TextView android:id="@+id/resultZoomMinus" android:text="−" android:textColor="#AEB1B7" android:textSize="12sp" android:gravity="center" android:background="@drawable/button_flat" android:clickable="true" android:focusable="true" android:layout_width="18dp" android:layout_height="18dp" android:contentDescription="Zoom results out"/>
+                        <TextView android:id="@+id/resultZoomPlus" android:text="+" android:textColor="#AEB1B7" android:textSize="12sp" android:gravity="center" android:background="@drawable/button_flat" android:clickable="true" android:focusable="true" android:layout_width="18dp" android:layout_height="18dp" android:layout_marginStart="2dp" android:contentDescription="Zoom results in"/>
+                    </LinearLayout>
+                </FrameLayout>
+                <LinearLayout android:id="@+id/errorPanel" android:orientation="vertical" android:background="#0C0D0F" android:layout_width="match_parent" android:layout_height="150dp" android:visibility="gone">
+                    <LinearLayout android:orientation="horizontal" android:gravity="center_vertical" android:paddingLeft="9dp" android:paddingRight="7dp" android:layout_width="match_parent" android:layout_height="28dp">
+                        <TextView android:id="@+id/errorPanelTitle" android:text="MESSAGES" android:textColor="#85888E" android:fontFamily="sans-serif-medium" android:textSize="9sp" android:letterSpacing="0.12" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content"/>
+                        <TextView android:id="@+id/errorPanelCount" android:text="Errors 0" android:textColor="#E58B86" android:textSize="9sp" android:gravity="center" android:paddingLeft="7dp" android:paddingRight="7dp" android:layout_width="wrap_content" android:layout_height="22dp"/>
+                        <Button android:id="@+id/clearErrorsButton" style="@style/FlatButton" android:text="Clear" android:textSize="9sp" android:minHeight="0dp" android:minWidth="0dp" android:layout_width="wrap_content" android:layout_height="25dp" android:layout_marginStart="4dp"/>
+                    </LinearLayout>
+                    <ScrollView android:fillViewport="true" android:overScrollMode="never" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+                        <LinearLayout android:id="@+id/errorList" android:orientation="vertical" android:paddingLeft="7dp" android:paddingRight="7dp" android:paddingBottom="6dp" android:layout_width="match_parent" android:layout_height="wrap_content"/>
+                    </ScrollView>
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

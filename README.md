@@ -46,7 +46,7 @@ The three-dot menu keeps the less frequently used tools out of the way while mak
 Results are designed for data exploration rather than just displaying a static table. The result area supports zoom controls, searching, and a virtualized grid for large result sets.
 
 <p align="center">
-  <img src="assets/result-zoom.gif" alt="Project Lily result grid zoom animation" width="900">
+  <img src="assets/project-lily-demo-zoom.gif" alt="Project Lily result grid zoom animation" width="900">
 </p>
 
 ---

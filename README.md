@@ -6,7 +6,7 @@ A dark, macOS-inspired SQLite workspace built for writing SQL, exploring databas
 
 <div align="center">
 
-<img src="assets/project_lily_mascot_black_maxq.gif" width="180">
+<img src="assets/project_lily_animation-1.gif" width="180">
 
 # Project Lily
 

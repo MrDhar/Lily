@@ -41,15 +41,13 @@ The three-dot menu keeps the less frequently used tools out of the way while mak
 
 ---
 
-### 🔎 Result grids that you can actually explore
+### ⚡ Write. Run. Explore.
 
-Results are designed for data exploration rather than just displaying a static table. The result area supports zoom controls, searching, and a virtualized grid for large result sets.
+A focused workflow for working with data on Android. Write and execute SQL, inspect your results, and adjust the editor or result-grid zoom to fit your screen.
 
 <p align="center">
-  <img src="assets/project-lily-demo-zoom.gif" alt="Project Lily result grid zoom animation" width="900">
+  <img src="assets/project-lily-demo-zoom.gif" alt="Project Lily SQL workflow" width="900">
 </p>
-
----
 
 ### ⚡ From query to result
 

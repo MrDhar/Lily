@@ -49,10 +49,14 @@ A focused workflow for working with data on Android. Write and execute SQL, insp
   <img src="assets/project-lily-demo-zoom.gif" alt="Project Lily SQL workflow" width="900">
 </p>
 
-### ⚡ From query to result
+### 🧩 Command menu
+
+One place for the tools you use most. Open the command menu to quickly jump between database browsing, schema and table actions, query history, saved snippets, data tools, and SQL practice.
 
 <p align="center">
-  <img src="assets/project-lily-workflow.gif" alt="Project Lily workflow animation" width="900">
+  <img src="assets/project-lily-command-menu.gif"
+       alt="Project Lily command menu"
+       width="900">
 </p>
 
 Write SQL, format it, execute the current statement or a broader selection, then inspect the returned data without leaving the workspace.

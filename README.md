@@ -6,16 +6,17 @@ A dark, macOS-inspired SQLite workspace built for writing SQL, exploring databas
 
 <div align="center">
 
-# 🌸 Project Lily
+<img src="assets/project_lily_mascot_black_maxq.gif" width="180">
+
+# Project Lily
 
 ### A full SQL workspace, built for Android.
 
-Write SQL. Explore databases. Inspect results.
+Write SQL · Explore databases · Learn · Offline
 
-[ **Download APK** ] · [ **View Source** ]
+**[ Download APK ] · [ View Source ]**
 
-</div>a
-
+</div>
 ---
 
 ## ✨ Built for working with SQL on Android

@@ -160,20 +160,16 @@ The project is built and released through GitHub Actions with a signed Android r
 
 ---
 
-## 🗺️ Project
+## 📦 Project structure
 
 ```text
 Project Lily
-├── Android application
-├── SQLite database engine
-├── SQL editor
-├── Database browser
-├── Result grid
-├── Import / export
-├── Query history
-├── Saved snippets
-└── SQL practice
-```
+├── app/                    Android application
+├── app/src/main/java/     Kotlin source
+├── app/src/main/res/      Android resources
+├── app/src/main/assets/   Sample databases
+├── assets/                README media
+└── .github/workflows/     CI & release automation
 
 ---
 

@@ -160,7 +160,9 @@ The project is built and released through GitHub Actions with a signed Android r
 
 ---
 
-## 📦 Project structure
+---
+
+#### 📦 Project structure
 
 ```text
 Project Lily
@@ -170,6 +172,7 @@ Project Lily
 ├── app/src/main/assets/   Sample databases
 ├── assets/                README media
 └── .github/workflows/     CI & release automation
+```
 
 ---
 
@@ -191,5 +194,7 @@ If you find something useful, have an idea, or spot a bug, feel free to open an 
 
 <p align="center">
   <b>Project Lily</b><br>
-  Query · Explore · Learn · Anywhere
+  Your database workspace, built for Android.
+  <br><br>
+  <sub>Query · Explore · Learn · Anywhere</sub>
 </p>

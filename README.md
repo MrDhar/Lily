@@ -4,15 +4,17 @@
 
 A dark, macOS-inspired SQLite workspace built for writing SQL, exploring databases, inspecting results, and practicing SQL — directly on Android.
 
-<p align="center">
-  <img src="assets/hero.png" alt="Project Lily SQL Editor" width="900">
-</p>
+<div align="center">
 
-<p align="center">
-  <a href="https://github.com/MrDhar/Lily/releases/latest"><b>⬇ Download APK</b></a>
-  &nbsp; • &nbsp;
-  <a href="https://github.com/MrDhar/Lily"><b>View Source</b></a>
-</p>
+# 🌸 Project Lily
+
+### A full SQL workspace, built for Android.
+
+Write SQL. Explore databases. Inspect results.
+
+[ **Download APK** ] · [ **View Source** ]
+
+</div>a
 
 ---
 

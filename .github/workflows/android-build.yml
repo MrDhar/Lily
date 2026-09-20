@@ -78,7 +78,7 @@ jobs:
             exit 1
           fi
 
-          echo "$KEYSTORE_BASE64" | base64 --decode > projectlily-release.jks
+          echo "$KEYSTORE_BASE64" | base64 --decode > app/projectlily-release.jks
 
           cat > keystore.properties <<EOF2
           storeFile=projectlily-release.jks

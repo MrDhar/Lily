@@ -9,7 +9,7 @@ A dark, macOS-inspired SQLite workspace built for writing SQL, exploring databas
 <img src="assets/project_lily_animation-1.gif" width="280" alt="Project Lily mascot">
 
 </div>
----
+
 
 ## ✨ Built for working with SQL on Android
 

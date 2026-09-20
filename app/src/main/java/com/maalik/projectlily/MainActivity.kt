@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.os.CancellationSignal
 import android.os.Handler
 import android.os.Looper
+import android.os.Process
 import android.content.*
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
@@ -79,6 +80,7 @@ class MainActivity : Activity() {
     private var databaseSwitcherPopup: PopupWindow? = null
     private var sidebarOpen = true
     private var focusMode = false
+    private var strictMysqlMode = true
     private var focusSidebarWasOpen = false
     private var switchingScriptTab = false
     private data class ScriptTab(var name:String, var text:String, var selection:Int=0, var dirty:Boolean=false)
@@ -124,7 +126,22 @@ class MainActivity : Activity() {
     @Volatile private var schemaRefreshGeneration=0
     private val mainHandler=Handler(Looper.getMainLooper())
     private var highlightRunnable:Runnable?=null
-    override fun onCreate(b: Bundle?) { super.onCreate(b); setContentView(R.layout.activity_main); enterImmersiveMode()
+    override fun onCreate(b: Bundle?) {
+        // Best-effort crash safety net: persist the in-progress script before
+        // handing off to the platform's normal crash handling, so an unhandled
+        // exception doesn't also cost the user their unsaved query text. This
+        // never suppresses the crash — it still reports/terminates exactly as
+        // before, just after a defensive save attempt.
+        val previousUncaughtHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            try { if (::editor.isInitialized) persistCurrentScript() } catch (_: Throwable) { }
+            if (previousUncaughtHandler != null) {
+                previousUncaughtHandler.uncaughtException(thread, throwable)
+            } else {
+                Process.killProcess(Process.myPid())
+            }
+        }
+        super.onCreate(b); setContentView(R.layout.activity_main); enterImmersiveMode()
         editor=findViewById(R.id.editor); editorShortcuts=EditorShortcuts(this); findViewById<LineNumberGutterView>(R.id.editorGutter).bindEditor(editor); scriptTabStrip=findViewById(R.id.scriptTabStrip); editorBaseSp=13f; currentStatementIndicator=findViewById(R.id.currentStatementIndicator); setupScriptTabs(); editor.setOnKeyListener{_,keyCode,event->
             if(event.action!=KeyEvent.ACTION_DOWN)return@setOnKeyListener false
             val mod=event.isCtrlPressed||event.isMetaPressed
@@ -174,6 +191,7 @@ ORDER BY salary DESC;"""
     private fun loadPrefs(){
         history.addAll(prefs.getStringSet("history", emptySet<String>())!!.toList())
         prefs.all.filterKeys{it.startsWith("snippet:")}.forEach{entry->(entry.value as? String)?.let{snippets[entry.key.removePrefix("snippet:")]=it}}
+        strictMysqlMode=prefs.getBoolean("strict_mysql_mode",true)
     }
     private fun savePrefs(){prefs.edit().putStringSet("history",history.take(30).toSet()).apply()}
     private fun userDatabasePaths():MutableList<String>{
@@ -1401,6 +1419,45 @@ ORDER BY salary DESC;"""
             if(c=='-'&&next=='-'){while(i<s.length&&s[i]!='\n')i++;continue};if(c=='#'&&(i==0||s[i-1]=='\n')){while(i<s.length&&s[i]!='\n')i++;continue};out.append(c);i++}
         return out.toString()
     }
+    private fun splitTopLevelCommaArgs(s:String):List<String>{
+        val out=mutableListOf<String>();val cur=StringBuilder();var i=0;var inQuote=false
+        while(i<s.length){
+            val c=s[i]
+            if(inQuote){
+                cur.append(c)
+                if(c=='\''){
+                    if(i+1<s.length&&s[i+1]=='\''){cur.append(s[i+1]);i+=2;continue}
+                    inQuote=false
+                }
+                i++;continue
+            }
+            when(c){
+                '\''->{inQuote=true;cur.append(c)}
+                ','->{out.add(cur.toString());cur.clear()}
+                else->cur.append(c)
+            }
+            i++
+        }
+        out.add(cur.toString())
+        return out
+    }
+    private fun mysqlIntervalToSqliteModifier(amount:String,unit:String,subtract:Boolean):String{
+        val n=amount.trim().toIntOrNull()?:0
+        val(mult,sqliteUnit)=when(unit.uppercase(Locale.US)){
+            "WEEK"->7 to "days"
+            "QUARTER"->3 to "months"
+            "DAY"->1 to "days"
+            "MONTH"->1 to "months"
+            "YEAR"->1 to "years"
+            "HOUR"->1 to "hours"
+            "MINUTE"->1 to "minutes"
+            "SECOND"->1 to "seconds"
+            else->1 to unit.lowercase(Locale.US)+"s"
+        }
+        val total=(if(subtract)-n else n)*mult
+        val sign=if(total>=0)"+" else ""
+        return "$sign$total $sqliteUnit"
+    }
     private fun mysqlIdentifierToSqlite(sql:String):String{
         var s=sql.trim().removeSuffix(";").trim()
         val leading=stripLeadingSqlComments(s).trim()
@@ -1449,7 +1506,37 @@ ORDER BY salary DESC;"""
             val fmt=m2.groupValues[2].replace("%i","%M").replace("%s","%S")
             "strftime('$fmt', ${m2.groupValues[1].trim()})"
         }
-        s=replaceOutsideSingleQuotes(s, Regex("(?is)CONCAT\\s*\\(\\s*([^,()]+)\\s*,\\s*([^,()]+)\\s*\\)")){m2->"(${m2.groupValues[1].trim()} || ${m2.groupValues[2].trim()})"}
+        // MySQL DATE_ADD/DATE_SUB(date, INTERVAL n unit) -> SQLite datetime(date, '+/-n unit').
+        // datetime() (rather than date()) is used so a time-of-day component already
+        // present in the value is preserved; on a pure-date value this adds a
+        // 00:00:00 time-of-day that MySQL's DATE_ADD would not include.
+        s=replaceOutsideSingleQuotes(s, Regex("(?is)DATE_(ADD|SUB)\\s*\\(\\s*([^,()]+?)\\s*,\\s*INTERVAL\\s+(-?\\d+)\\s+(DAY|MONTH|YEAR|HOUR|MINUTE|SECOND|WEEK|QUARTER)\\b\\s*\\)")){m2->
+            val subtract=m2.groupValues[1].equals("SUB",true)
+            val modifier=mysqlIntervalToSqliteModifier(m2.groupValues[3],m2.groupValues[4],subtract)
+            "datetime(${m2.groupValues[2].trim()}, '$modifier')"
+        }
+        // MySQL DATEDIFF(a,b) returns whole days between two dates/datetimes.
+        s=replaceOutsideSingleQuotes(s, Regex("(?is)DATEDIFF\\s*\\(\\s*([^,()]+?)\\s*,\\s*([^()]+?)\\s*\\)")){m2->
+            "CAST(julianday(${m2.groupValues[1].trim()}) - julianday(${m2.groupValues[2].trim()}) AS INTEGER)"
+        }
+        // MySQL GROUP_CONCAT(expr SEPARATOR 'sep') -> SQLite GROUP_CONCAT(expr, 'sep').
+        // No nested parentheses inside expr are handled, matching the same
+        // conservative limitation as the other regex-based translations here.
+        s=replaceOutsideSingleQuotes(s, Regex("(?is)GROUP_CONCAT\\s*\\(\\s*([^()]+?)\\s+SEPARATOR\\s+'([^']*)'\\s*\\)")){m2->
+            "GROUP_CONCAT(${m2.groupValues[1].trim()}, '${m2.groupValues[2]}')"
+        }
+        // MySQL CONCAT(a,b,c,...) with any number of arguments -> SQLite a || b || c...
+        // CONCAT_WS is deliberately left untranslated: MySQL drops NULL arguments
+        // when joining, but SQLite's || would make the whole expression NULL, so a
+        // naive translation would silently return wrong results.
+        s=replaceOutsideSingleQuotes(s, Regex("(?i)(?<!GROUP_)\\bCONCAT(?!_WS)\\s*\\(([^()]*)\\)")){m2->
+            val args=splitTopLevelCommaArgs(m2.groupValues[1]).map{it.trim()}.filter{it.isNotEmpty()}
+            when{
+                args.isEmpty()->m2.value
+                args.size==1->"(${args[0]})"
+                else->"("+args.joinToString(" || ")+")"
+            }
+        }
         // Imported databases are flattened into one local SQLite schema, so remove
         s=replaceOutsideSingleQuotes(s, Regex("`([^`]+)`")){m2->"\"${m2.groupValues[1].replace("\"","\"\"")}\""}
         // MySQL's INSERT IGNORE maps directly to SQLite's conflict behavior.
@@ -1534,7 +1621,7 @@ ORDER BY salary DESC;"""
         queryRunning=true;queryCancelled=false;val executionStarted=System.nanoTime();val cancellation=CancellationSignal();activeQueryCancellation=cancellation;status.text=if(currentOnly)"Running current statement…" else "Running ${statements.size} statement(s)…";status.setTextColor(Color.rgb(170,165,178))
         Thread{var ok=0;var err=0;var schemaChanged=false
             for((idx,s) in statements.withIndex()){if(queryCancelled)break;val statementNumber=statementNumbers.getOrElse(idx){idx+1};val label=leadingKeyword(s)+" "+statementNumber+(if(currentOnly)" · current" else if(selected.isNotEmpty())" · selected" else "");val started=System.nanoTime();try{
-                val ruleViolation=MySqlStrictRuleValidator.validate(executionDb,s)
+                val ruleViolation=if(strictMysqlMode)MySqlStrictRuleValidator.validate(executionDb,s) else null
                 if(ruleViolation!=null){
                     val msg="MySQL ${ruleViolation.code}: ${ruleViolation.message}"
                     val location=lineColumnFor(editor.text.toString(),s)
@@ -1884,6 +1971,8 @@ ORDER BY salary DESC;"""
         "Optimize Database" to {optimizeDatabase()},
         "Database Performance" to {databasePerformanceInfo()},
         "Database Integrity Check" to {checkDatabaseIntegrity()},
+        "Toggle MySQL Strict Mode" to {toggleStrictMysqlMode()},
+        "SQL Compatibility Notes" to {showCompatibilityNotes()},
         "Rename Query Tab" to {if(scriptTabs.isNotEmpty())renameScriptTab(activeScriptTab)}
     )
     private fun toggleSidebar(){
@@ -1907,6 +1996,41 @@ ORDER BY salary DESC;"""
         }
         updateDotStates()
         showWindowToast(if(focusMode)"Focus mode on" else "Focus mode off")
+    }
+    private fun toggleStrictMysqlMode(){
+        strictMysqlMode=!strictMysqlMode
+        prefs.edit().putBoolean("strict_mysql_mode",strictMysqlMode).apply()
+        showWindowToast(if(strictMysqlMode)"MySQL strict mode on — MySQL sql_mode rules are enforced" else "MySQL strict mode off — running plain SQLite semantics")
+    }
+    private fun showCompatibilityNotes(){
+        val body=TextView(this).apply{
+            textSize=12f;setTextColor(white);setPadding(0,dp(4),0,dp(4));setTextIsSelectable(true)
+            text="""Project Lily runs on-device SQLite, with a compatibility layer for common MySQL syntax. It is not a MySQL server.
+
+Strict mode is currently ${if(strictMysqlMode)"ON" else "OFF"}. Toggle it from the command palette ("Toggle MySQL Strict Mode").
+
+TRANSLATED
+• SHOW TABLES / DATABASES / COLUMNS / INDEX, DESCRIBE, SHOW CREATE TABLE
+• LIMIT offset,count → LIMIT count OFFSET offset
+• Backtick identifiers, INSERT IGNORE
+• NOW(), CURDATE(), CURTIME(), IF(a,b,c)
+• CONCAT(...) with any number of arguments
+• GROUP_CONCAT(x SEPARATOR ',')
+• DATE_FORMAT (%i/%s), DATE_ADD/DATE_SUB (INTERVAL n unit), DATEDIFF
+• Basic MATCH(...) AGAINST('...') as a LIKE-based approximation
+• CREATE TABLE data types (VARCHAR, INT, DATETIME, JSON, AUTO_INCREMENT, UNSIGNED, etc.)
+• MySQL default sql_mode: ONLY_FULL_GROUP_BY, STRICT_TRANS_TABLES, NO_ZERO_DATE, NO_ZERO_IN_DATE, ERROR_FOR_DIVISION_BY_ZERO — enforced when strict mode is on
+
+NOT SUPPORTED
+• Stored procedures/functions, triggers with procedural logic, cursors
+• User/session variables (@var)
+• Hashing (MD5, SHA1, SHA2), RAND(), TRUNCATE(), LPAD/RPAD, FIELD/ELT
+• Full MySQL boolean-mode full-text search
+• CONCAT_WS (skipped — MySQL drops NULLs, SQLite's || would not, so this is intentionally left untranslated rather than translated incorrectly)"""
+        }
+        val scroll=ScrollView(this).apply{addView(body)}
+        val box=LinearLayout(this).apply{orientation=LinearLayout.VERTICAL;addView(scroll,LinearLayout.LayoutParams(-1,dp(420)))}
+        cardDialog("SQL Compatibility Notes",box).show()
     }
     private fun updateDotStates(){ windowDotsController.updateState() }
     private fun showWindowToast(text:String){Toast.makeText(this,text,Toast.LENGTH_SHORT).show()}
@@ -2168,16 +2292,19 @@ ORDER BY salary DESC;"""
                 while(c.moveToNext())indexSql.add(c.getString(0))
             }
             db.beginTransaction()
+            var failedIndexes=0
             try{
                 db.execSQL(newDdl)
                 db.execSQL("INSERT INTO $quotedNew SELECT * FROM \"$oldSafe\"")
                 indexSql.forEach{sql->
                     val rewritten=sql.replace(Regex("(?i)\\b${Regex.escape(table)}\\b"),n)
-                    try{db.execSQL(rewritten)}catch(_:Exception){}
+                    try{db.execSQL(rewritten)}catch(_:Exception){failedIndexes++}
                 }
                 db.setTransactionSuccessful()
             }finally{db.endTransaction()}
-            refreshSchemaPanel();statusOk("Duplicated $table as $n")
+            refreshSchemaPanel()
+            if(failedIndexes>0)statusOk("Duplicated $table as $n ($failedIndexes index(es) could not be recreated)")
+            else statusOk("Duplicated $table as $n")
         }catch(e:Exception){
             try{
                 val base=table+"_copy";var n=base;var i=2

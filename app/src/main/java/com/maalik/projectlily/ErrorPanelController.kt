@@ -94,6 +94,11 @@ internal class ErrorPanelController(
             lower.contains("no_zero_date") -> "MySQL NO_ZERO_DATE violation — 0000-00-00 is not allowed by the default strict SQL mode."
             lower.contains("no_zero_in_date") -> "MySQL NO_ZERO_IN_DATE violation — a zero month or day is not allowed by the default strict SQL mode."
             lower.contains("strict_trans_tables") -> "MySQL STRICT_TRANS_TABLES violation — the supplied value is not valid for the target column."
+            lower.contains("no such function") -> {
+                val name = Regex("no such function:\\s*(\\w+)", RegexOption.IGNORE_CASE).find(m)?.groupValues?.getOrNull(1)
+                val label = if (name != null) " '$name'" else ""
+                "Unsupported function$label — Project Lily runs on SQLite, so only a subset of MySQL functions is translated. This one has no SQLite equivalent here."
+            }
             lower.contains("syntax error") -> "SQL syntax error — check the statement structure, keywords, quotes, and punctuation."
             lower.contains("near ") && lower.contains("syntax") -> "SQL syntax error — SQLite could not understand the SQL near the reported token."
             lower.contains("datatype mismatch") -> "Data type mismatch — one or more values are not compatible with the target column type."

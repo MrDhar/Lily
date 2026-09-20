@@ -30,14 +30,7 @@ The three-dot menu keeps the less frequently used tools out of the way while mak
   <img src="assets/project_lily_demo (1).gif" alt="Project Lily command menu animation" width="900">
 </p>
 
-**Available tools include:**
 
-- Schema Inspector
-- Table Designer
-- Data Editor
-- Query History
-- Saved Snippets
-- Practice
 
 ---
 
@@ -54,13 +47,21 @@ A focused workflow for working with data on Android. Write and execute SQL, insp
 One place for the tools you use most. Open the command menu to quickly jump between database browsing, schema and table actions, query history, saved snippets, data tools, and SQL practice.
 
 <p align="center">
-  <img src="assets/project-lily-command-menu.gif"
+  <img src="assets/project-lily-command-palette.gif"
        alt="Project Lily command menu"
        width="900">
 </p>
 
 Write SQL, format it, execute the current statement or a broader selection, then inspect the returned data without leaving the workspace.
 
+**Available tools include:**
+
+- Schema Inspector
+- Table Designer
+- Data Editor
+- Query History
+- Saved Snippets
+- Practice
 ---
 
 ## 🧩 Features

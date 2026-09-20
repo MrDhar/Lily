@@ -1,15 +1,17 @@
-# 🌸 Project Lily
+#<div align="center">
 
-### Offline SQL Editor for Android
+<img src="assets/project_lily_animation-1.gif" width="280" alt="Project Lily">
 
-A SQLite workspace built for writing SQL, exploring databases, inspecting results, and practicing SQL — directly on Android.
+# Project Lily
 
-<div align="center">
+### Your database workspace, built for Android.
 
-<img src="assets/project_lily_animation-1.gif" width="280" alt="Project Lily mascot">
+SQL, SQLite, MySQL-style commands, data exploration, and learning —
+all in an offline, tablet-friendly workspace.
+
+`Android` · `Tablet` · `Offline` · `SQL`
 
 </div>
-
 
 ## ✨ Built for working with SQL on Android
 

@@ -31,7 +31,7 @@ It also includes a command menu for secondary tools, multiple query tabs, import
 The three-dot menu keeps the less frequently used tools out of the way while making them immediately accessible when you need them.
 
 <p align="center">
-  <img src="assets/command-menu.gif" alt="Project Lily command menu animation" width="900">
+  <img src="assets/project_lily_demo (1).gif" alt="Project Lily command menu animation" width="900">
 </p>
 
 **Available tools include:**

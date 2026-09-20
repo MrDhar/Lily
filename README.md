@@ -77,7 +77,6 @@ Write SQL, format it, execute the current statement or a broader selection, then
 | 💾 Saved snippets | Keep useful SQL ready for reuse |
 | 📥 Import | Work with SQLite databases, CSV/TSV, JSON and SQL dumps |
 | 📤 Export | Export databases and query results |
-| 🧠 SQL assistance | Schema-aware autocomplete and database lookups |
 | 🎓 Practice | Built-in SQL challenges for hands-on learning |
 | ⌨️ Keyboard shortcuts | Desktop-style shortcuts for faster workflows |
 | 🌑 Dark UI | A compact, macOS-inspired interface designed for focused work |

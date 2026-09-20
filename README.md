@@ -181,14 +181,13 @@ Project Lily
 Project Lily is developed as an open-source Android project.
 
 If you find something useful, have an idea, or spot a bug, feel free to open an issue or contribute.
+---
 
-<p align="center">
-  <a href="https://github.com/MrDhar/Lily/issues">Report an issue</a>
-  &nbsp; • &nbsp;
-  <a href="https://github.com/MrDhar/Lily/releases">Releases</a>
-  &nbsp; • &nbsp;
-  <a href="https://github.com/MrDhar/Lily">GitHub</a>
-</p>
+## 📄 License
+
+Project Lily is licensed under the [MIT License](LICENSE).
+
+You are free to use, modify, distribute, and build upon the project, subject to the terms of the license.
 
 ---
 

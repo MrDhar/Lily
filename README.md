@@ -1,5 +1,4 @@
-#<div align="center">
-
+<div align="center">
 <img src="assets/project_lily_animation-1.gif" width="280" alt="Project Lily">
 
 # Project Lily

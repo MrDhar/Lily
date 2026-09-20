@@ -2,7 +2,7 @@
 
 ### Offline SQL Editor for Android
 
-A dark, macOS-inspired SQLite workspace built for writing SQL, exploring databases, inspecting results, and practicing SQL — directly on Android.
+A SQLite workspace built for writing SQL, exploring databases, inspecting results, and practicing SQL — directly on Android.
 
 <div align="center">
 
